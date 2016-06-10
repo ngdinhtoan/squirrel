@@ -76,3 +76,12 @@ func TestInsertBuilderSetMap(t *testing.T) {
 	expectedArgs := []interface{}{1}
 	assert.Equal(t, expectedArgs, args)
 }
+
+func TestInsertDefaultValue(t *testing.T) {
+	b := Insert("tbl").Columns("desctiption").Values(Default)
+
+	sql, args, err := b.ToSql()
+	assert.NoError(t, err)
+	assert.Empty(t, args)
+	assert.Equal(t, "INSERT INTO tbl (desctiption) VALUES (DEFAULT)", sql)
+}

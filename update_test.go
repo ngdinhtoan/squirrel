@@ -66,3 +66,12 @@ func TestUpdateBuilderNoRunner(t *testing.T) {
 	_, err := b.Exec()
 	assert.Equal(t, RunnerNotSet, err)
 }
+
+func TestUpdateDefaultValue(t *testing.T) {
+	b := Update("tbl").Set("desciption", Default)
+
+	sql, args, err := b.ToSql()
+	assert.NoError(t, err)
+	assert.Empty(t, args)
+	assert.Equal(t, "UPDATE tbl SET desciption = DEFAULT", sql)
+}

@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
-	"github.com/lann/builder"
 	"strings"
+
+	"github.com/lann/builder"
 )
 
 type insertData struct {
@@ -84,11 +85,13 @@ func (d *insertData) ToSql() (sqlStr string, args []interface{}, err error) {
 	for r, row := range d.Values {
 		valueStrings := make([]string, len(row))
 		for v, val := range row {
-			e, isExpr := val.(expr)
-			if isExpr {
-				valueStrings[v] = e.sql
-				args = append(args, e.args...)
-			} else {
+			switch val := val.(type) {
+			case expr:
+				valueStrings[v] = val.sql
+				args = append(args, val.args...)
+			case Keyword:
+				valueStrings[v] = string(val)
+			default:
 				valueStrings[v] = "?"
 				args = append(args, val)
 			}

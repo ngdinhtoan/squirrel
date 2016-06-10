@@ -76,16 +76,19 @@ func (d *updateData) ToSql() (sqlStr string, args []interface{}, err error) {
 	sql.WriteString(" SET ")
 	setSqls := make([]string, len(d.SetClauses))
 	for i, setClause := range d.SetClauses {
-		var valSql string
-		e, isExpr := setClause.value.(expr)
-		if isExpr {
-			valSql = e.sql
-			args = append(args, e.args...)
-		} else {
-			valSql = "?"
-			args = append(args, setClause.value)
+		var valSQL string
+		switch value := setClause.value.(type) {
+		case expr:
+			valSQL = value.sql
+			args = append(args, value.args...)
+		case Keyword:
+			valSQL = string(value)
+		default:
+			valSQL = "?"
+			args = append(args, value)
 		}
-		setSqls[i] = fmt.Sprintf("%s = %s", setClause.column, valSql)
+
+		setSqls[i] = fmt.Sprintf("%s = %s", setClause.column, valSQL)
 	}
 	sql.WriteString(strings.Join(setSqls, ", "))
 
